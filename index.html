@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+  </head>
+  <style>
+*{
+    margin:0px;
+    padding: 0px;
+    box-sizing: border-box;
+}
+body{
+    background-color: rgb(24, 14, 14);
+}
+.container{
+    max-width: 400px;
+    min-height: 300px;
+    background-color: rgb(51, 42, 30);
+    border: 2px solid black;
+    margin-top: 5%;
+    background: linear-gradient(red,blue);
+    border-radius: 15px;
+    border: 5px solid whitesmoke;
+    box-shadow: 0px 0px 155px 0px red;
+}
+#newTask{
+    width:83%;
+    text-align: center;
+    border-radius: 5px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 7px;
+} 
+#btn{
+    padding: 7px;
+    border-radius: 7px;
+    border: none;
+    padding-left: 10px;
+    padding-right: 10px;
+    background-color: blue;
+    color:white;
+}
+
+.section span{
+    color:white;
+    margin: 10px;
+    margin-bottom: 10px;
+}
+.list-group-item{
+    margin: 10px;
+}
+ion-icon{
+    float: right;
+    cursor: pointer;
+}
+span{
+    cursor: pointer;
+    padding: 3px;
+}
+span:hover{
+    border-bottom: 3px solid blue;
+}
+
+.list-group-item{
+    border-radius: 5px;
+}
+[type="checkbox"]{
+    border:1px solid black;
+}
+.back{
+    background:linear-gradient(yellow,red,green,blue);
+    max-width: 410px;
+    min-height: 320px;
+    padding: 10px;
+    margin: auto;
+    margin-top: 2%;
+    border-radius: 30px;
+    margin-bottom: 10px;
+    
+font-family: ui-rounded;
+}
+.bbt{
+    display: block;
+    display: flex;
+    justify-content: space-around;
+    margin: 5px 15px;
+    margin-top: 33%;
+}
+.bbt .col{
+    margin: 5px;
+}
+  </style>
+  <body>
+<div class="back"><h4 class="text-center">TODO-LIST</h4>
+<div class="container">
+    <div class="top">
+    <input id="newTask" type="text" placeholder="New Task">
+    <button id="btn" onclick="addNewTask()">Add</button>
+</div>
+<div class="section">
+    <span onclick="filterTask('all')">ALL</span>
+    <span onclick="filterTask('pending')">ACTIVE</span>
+    <span onclick="filterTask('complete')">COMPLETED</span>
+</div>
+<div class="mt-2 ms-4 text-light">
+<input id="idd" type="checkbox" onclick="completeAll(this)">
+All
+</div>
+
+<ul class="list-group">
+
+</ul>  <div class="bbt">
+
+<div class="col"><button class="btn btn-danger mt-2 w-100" onclick="deleteAll()">Delete all</button>
+</div>
+</div>
+</div>
+</div>
+
+<script>
+// let todoList =[];
+
+// let ul =document.querySelector(".list-group")
+// function display(){
+//     let b = document.querySelector("#newTask").value;
+//     todoList.push(b);
+
+//    let li= todoList.map(data => `<li class="list-group-item">
+//     <input class="form-check-input me-1" type="checkbox" value="" id="firstCheckboxStretched">
+//     <label class="form-check-label " for="firstCheckboxStretched">${data}</label>
+//     <ion-icon name="trash-outline"></ion-icon>
+//   </li>`)
+//    console.log(li);
+// document.querySelector(".list-group").innerHTML=li.join("");;
+// }
+
+let allTask = [];
+function addNewTask() {
+    let textBox = document.querySelector("#newTask");
+    let newTask = textBox.value;
+    console.log(newTask)
+    allTask.push({
+        task: newTask,
+        isComplete: false
+    });
+    listItems = createTamplate(allTask);
+    bindDataToUl(listItems);
+    saveTask(allTask);
+    textBox.value = "";
+}
+
+function filterTask(task) {
+
+let isFilter = true; 
+let finterData = allTask;
+
+if(task == "pending"){
+    finterData = allTask.filter(task => task.isComplete == false)
+}else if(task == "complete"){
+    finterData = allTask.filter(task => task.isComplete == true)
+}
+
+let li = createTamplate(finterData)
+bindDataToUl(li);
+
+}
+
+function createTamplate(allTask) {
+    let li = allTask.map((task, index) => {
+        let checked = task.isComplete == true ? "checked" : "";
+        let lineThrough = task.isComplete == true ? "text-decoration-line-through" : "";
+        return `<li class="list-group-item">
+                <input ${checked} type="checkbox" onclick="markTaskComplete(this,'span${index}', ${index})">
+                <span id="span${index}" class="${lineThrough}">${task.task}</span>
+                <i class='bx bxs-trash-alt float-end text-danger bx-sm'></i>
+                <ion-icon name="trash-outline" onclick="deleteOne(this),${index}"></ion-icon>
+                </li>`
+    });
+
+    return li.join("")
+}
+
+function saveTask(allTask) {
+    let strData = JSON.stringify(allTask);
+    localStorage.setItem("todo", strData);
+}
+
+function getTask() {
+    let data = localStorage.getItem("todo");
+    if (data != null) {
+        let allOldTask = JSON.parse(data);
+        allTask = allOldTask;
+        listItems = createTamplate(allTask);
+        bindDataToUl(listItems);
+        
+        
+        let completedTask = allTask.filter(t => t.isComplete == true);
+            let isChecked = allTask.length == completedTask.length
+            document.querySelector("#idd").checked = isChecked;
+        
+    }
+
+}
+
+function bindDataToUl(listItems) {
+    document.querySelector(".list-group").innerHTML = listItems;
+}
+
+function markTaskComplete(element, id, index) {
+
+    let checkBox = document.querySelector(`#${id}`);
+    if (element.checked) {
+        checkBox.classList.add("text-decoration-line-through")
+    } else {
+        checkBox.classList.remove("text-decoration-line-through")
+    }
+    allTask[index].isComplete = element.checked
+    saveTask(allTask);
+
+   
+    
+        let completedTask = allTask.filter(t => t.isComplete == true);
+            let isChecked = allTask.length == completedTask.length
+            document.querySelector("#idd").checked = isChecked;
+      
+    
+
+    
+}
+function deleteOne(element, index) {
+    
+    allTask.splice(index, 1);
+    saveTask(allTask)
+    let li = createTamplate(allTask)
+    bindDataToUl(li);
+}
+function deleteAll() {
+
+let isDelete = confirm("Are you sure want to delete all task!");
+
+if (isDelete) {
+    allTask = [];
+    saveTask(allTask)
+    let li = createTamplate(allTask)
+    bindDataToUl(li);
+}
+
+}
+function completeAll(element){
+           let allCompleteTask = allTask.map(task => {
+                task.isComplete = element.checked;
+                return task;
+            })
+            allTask = allCompleteTask
+            saveTask(allTask)
+            let li = createTamplate(allTask)
+            bindDataToUl(li);
+        }
+
+getTask();
+
+
+
+ 
+    
+
+</script>
+  
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+  </body>
+</html>
